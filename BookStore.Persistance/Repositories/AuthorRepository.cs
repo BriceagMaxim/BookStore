@@ -18,7 +18,7 @@ namespace BookStore.Persistance.Repositories
             _context = context;
         }
 
-        public async Task<IReadOnlyList<Book>> GetAuthorBooksAsync(int authorId)
+        public async Task<IEnumerable<Book>> GetAuthorBooksAsync(int authorId)
         {
             return await _context.Books.Where(el => el.AuthorId == authorId).ToListAsync();
         }
@@ -28,7 +28,7 @@ namespace BookStore.Persistance.Repositories
             return await _context.Authors.FindAsync(authorId);
         }
 
-        public async Task<IReadOnlyList<Author>> GetAuthorsAsync()
+        public async Task<IEnumerable<Author>> GetAuthorsAsync()
         {
             return await _context.Authors.ToListAsync();
         }

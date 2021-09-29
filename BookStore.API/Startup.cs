@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BookStore.API.Helpers;
 using BookStore.Application.Abstraction.Repositories;
 using BookStore.Persistance.Data;
 using BookStore.Persistance.Repositories;
@@ -29,6 +30,8 @@ namespace BookStore.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(MappingStoreEntities));
+
             services.AddDbContext<BookStoreContext>(
                 el => el.UseSqlServer(
                     _configuration.GetConnectionString("BookStore")
@@ -52,8 +55,6 @@ namespace BookStore.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore.API v1"));
             }
-
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

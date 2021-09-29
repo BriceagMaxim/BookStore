@@ -23,14 +23,15 @@ namespace BookStore.Persistance.Repositories
             return await _context.Books.FindAsync(bookId);
         }
 
-        public async Task<IReadOnlyList<Book>> GetBooksAsync()
+        public async Task<IEnumerable<Book>> GetBooksAsync()
         {
-            return await _context.Books.ToListAsync();
+            return await _context.Books.Include(el => el.Author).ToListAsync();
         }
 
         public async Task CreateBook(Book book)
         {
             await _context.Books.AddAsync(book);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateBook(Book book)
