@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using BookStore.API.Dtos;
+using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,7 @@ namespace BookStore.API.Controllers
         public async Task<IActionResult> GetAuthorById(int id)
         {
             var author = _mapper.Map<AuthorDto>(await _repository.GetAuthorByIdAsync(id));
-            if (author is null) return NotFound();
+            if (author is null) return NotFound(new ApiResponse(404, $"Author with id: {id} is not found"));
             return Ok(author);
         }
 
@@ -39,7 +40,7 @@ namespace BookStore.API.Controllers
         public async Task<IActionResult> GetAuthorBooks(int id)
         {
             var author = await _repository.GetAuthorByIdAsync(id);
-            if (author is null) return NotFound();
+            if (author is null) return NotFound(new ApiResponse(404, $"Author with id: {id} is not found"));
 
             var authorBooks = _mapper.Map<List<BookDto>>(await _repository.GetAuthorBooksAsync(id));
             return Ok(authorBooks);

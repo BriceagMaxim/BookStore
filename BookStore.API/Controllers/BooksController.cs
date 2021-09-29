@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BookStore.API.Dtos;
+using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Repositories;
 using BookStore.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +31,11 @@ namespace BookStore.API.Controllers
         }
 
         [HttpGet("{id}", Name = "BookById")]
-        public async Task<ActionResult> GetBookById(int Id)
+        public async Task<ActionResult> GetBookById(int id)
         {
-            var book = _mapper.Map<BookDto>(await _repository.GetBookByIdAsync(Id));
+            var book = _mapper.Map<BookDto>(await _repository.GetBookByIdAsync(id));
 
-            if (book is null) return NotFound();
+            if (book is null) return NotFound(new ApiResponse(404, $"Book with id: {id} is not found"));
 
             return Ok(book);
         }
@@ -58,7 +60,7 @@ namespace BookStore.API.Controllers
 
             var book = await _repository.GetBookByIdAsync(id);
 
-            if (book is null) return NotFound();
+            if (book is null) return NotFound(new ApiResponse(404, $"Book with id: {id} is not found"));
 
             _mapper.Map(bookDto, book);
             await _repository.UpdateBook(book);
@@ -67,11 +69,11 @@ namespace BookStore.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBook(int Id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            var book = await _repository.GetBookByIdAsync(Id);
+            var book = await _repository.GetBookByIdAsync(id);
 
-            if (book is null) return NotFound();
+            if (book is null) return NotFound(new ApiResponse(404, $"Book with id: {id} is not found"));
 
             await _repository.DeleteBook(book);
 
