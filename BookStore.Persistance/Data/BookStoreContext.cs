@@ -8,6 +8,8 @@ namespace BookStore.Persistance.Data
     {
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<CustomerCart> CustomerCarts { get; set; }
         public BookStoreContext(DbContextOptions<BookStoreContext> options) : base(options)
         {
 
