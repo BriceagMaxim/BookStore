@@ -7,7 +7,7 @@ namespace BookStore.Application.Abstraction.Repositories
     public interface IAuthorRepository
     {
         Task<IReadOnlyList<Author>> GetAuthorsAsync();
-        Task<Author> GetAuthorByIdAsync();
-        Task<IReadOnlyList<Book>> GetAuthorBooksAsync();
+        Task<Author> GetAuthorByIdAsync(int authorId);
+        Task<IReadOnlyList<Book>> GetAuthorBooksAsync(int authorId);
     }
 }
