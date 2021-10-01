@@ -1,6 +1,7 @@
 using BookStore.API.Extensions;
 using BookStore.API.Helpers;
 using BookStore.API.Middleware;
+using BookStore.Persistance.Data.SeedData;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,8 @@ namespace BookStore.API
             {
                 endpoints.MapControllers();
             });
+
+            //app.SeedUsers();
         }
     }
 }

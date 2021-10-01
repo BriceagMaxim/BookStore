@@ -1,42 +1,83 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BookStore.Core.Entities.Identity;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BookStore.Persistance.Data.SeedData
 {
-    public class IdentityContextSeed
+    public static class IdentityContextSeed
     {
-        public static async Task SeedUserAsync(UserManager<User> userManager, RoleManager<IdentityRole> rolemanager)
+
+        public static void SeedUsers(this IApplicationBuilder app)
         {
-            var customerRole = new IdentityRole { Name = "Customer" };
-            var adminRole = new IdentityRole { Name = "Admin" };
-            if (!rolemanager.Roles.Any())
+            using (var serviceScope = app.ApplicationServices.CreateScope())
             {
-                await rolemanager.CreateAsync(customerRole);
-                await rolemanager.CreateAsync(adminRole);
+                Console.WriteLine("--> Start check data");
+                SeedData(serviceScope.ServiceProvider.GetService<IdentityContext>(), serviceScope.ServiceProvider);
+                Console.WriteLine("--> Finish checking data");
+
+            }
+        }
+        private static async void SeedData(IdentityContext context, IServiceProvider services)
+        {
+            string[] roles = new string[] { "Customer", "Admin" };
+            var roleStore = new RoleStore<IdentityRole>(context);
+
+            foreach (string role in roles)
+            {
+                if (!context.Roles.Any(r => r.Name == role))
+                {
+                    await roleStore.CreateAsync(new IdentityRole(role));
+                }
             }
 
-            if (!userManager.Users.Any())
+            var customer = new User
             {
-                var customer = new User
-                {
-                    DisplayName = "customer",
-                    Email = "customer@gmail.com",
-                    UserName = "customer",
-                };
-                await userManager.CreateAsync(customer, "Pa$$w0rd");
-                await userManager.AddToRoleAsync(customer, adminRole.Name);
+                Email = "customer@gmail.com",
+                NormalizedEmail = "CUSTOMER@GMAIL.COM",
+                UserName = "Customer",
+                NormalizedUserName = "CUSTOMER",
+                PhoneNumber = "+111111111111",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D")
+            };
 
-                var admin = new User
-                {
-                    DisplayName = "Max",
-                    Email = "briceagmaxim@gmail.com",
-                    UserName = "Max",
-                };
-                await userManager.CreateAsync(admin, "Pa$$w0rd");
-                await userManager.AddToRoleAsync(admin, adminRole.Name);
+            var admin = new User
+            {
+                Email = "admin@gmail.com",
+                NormalizedEmail = "ADMIN@GMAIL.COM",
+                UserName = "Admin",
+                NormalizedUserName = "ADMIN",
+                PhoneNumber = "+111111111111",
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("D")
+            };
+
+
+            if (!context.Users.Any())
+            {
+                var password = new PasswordHasher<User>();
+                var hashed = password.HashPassword(customer, "Pa$$w0rd");
+                customer.PasswordHash = hashed;
+                admin.PasswordHash = hashed;
+
+                var userStore = new UserStore<User>(context);
+                await userStore.CreateAsync(customer);
+                await userStore.CreateAsync(admin);
             }
+
+            UserManager<User> _userManager = services.GetService<UserManager<User>>();
+            await _userManager.AddToRoleAsync(customer, "Customer");
+            await _userManager.AddToRoleAsync(admin, "Admin");
+
+
+            await context.SaveChangesAsync();
         }
     }
 }

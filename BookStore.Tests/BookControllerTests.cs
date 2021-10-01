@@ -13,12 +13,19 @@ namespace BookStore.Tests
     public class BookControllerTests
     {
         private readonly Book _book;
+        private readonly Author _author;
         private readonly Mock<IBookRepository> _repository;
         private readonly Mock<IAuthorRepository> _authRepository;
         private readonly IMapper _mapper;
 
         public BookControllerTests()
         {
+            _author = new Author
+            {
+                Id = 1,
+                FullName = "name"
+            };
+
             _book = new Book
             {
                 Id = 1,
@@ -34,6 +41,10 @@ namespace BookStore.Tests
             _repository = new();
             _repository.Setup(el => el.GetBookByIdAsync(1))
             .ReturnsAsync(_book);
+            
+            _authRepository = new ();
+            _authRepository.Setup(el => el.GetAuthorByIdAsync(1))
+            .ReturnsAsync(_author);
 
             var mockMapper = new MapperConfiguration(cfg =>
             {
