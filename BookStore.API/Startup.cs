@@ -1,3 +1,4 @@
+using BookStore.API.Extensions;
 using BookStore.API.Helpers;
 using BookStore.API.Middleware;
 using BookStore.Application.Abstraction.Repositories;
@@ -27,6 +28,9 @@ namespace BookStore.API
         {
             services.AddAutoMapper(typeof(MappingStoreEntities));
 
+            services.AddIdentityContext(_configuration.GetConnectionString("Identity"));
+            services.AddIdentitySettings(_configuration);
+            
             services.AddDbContext<BookStoreContext>(
                 el => el.UseSqlServer(
                     _configuration.GetConnectionString("BookStore")
