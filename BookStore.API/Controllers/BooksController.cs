@@ -6,6 +6,7 @@ using BookStore.API.Dtos;
 using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Repositories;
 using BookStore.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.API.Controllers
@@ -46,6 +47,7 @@ namespace BookStore.API.Controllers
         }
 
         // POST api/Books
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> AddBook([FromBody] BookForCreateDto newBook)
         {
@@ -64,6 +66,7 @@ namespace BookStore.API.Controllers
         }
 
         // PUT api/Books/1
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(int id, [FromBody] BookForCreateDto bookDto)
         {
@@ -80,6 +83,7 @@ namespace BookStore.API.Controllers
         }
 
         // DELETE api/Books/1
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {

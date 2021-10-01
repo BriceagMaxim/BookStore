@@ -5,6 +5,7 @@ using BookStore.API.Dtos;
 using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Services;
 using BookStore.Core.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +30,7 @@ namespace BookStore.API.Controllers
         }
 
         [HttpPost("SignIn")]
+        [AllowAnonymous]
         public async Task<IActionResult> SignIn(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);

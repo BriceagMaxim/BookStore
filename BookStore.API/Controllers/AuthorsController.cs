@@ -5,6 +5,7 @@ using BookStore.API.Dtos;
 using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Repositories;
 using BookStore.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.API.Controllers
@@ -49,6 +50,7 @@ namespace BookStore.API.Controllers
         }
 
         // POST api/authors
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateAuthor(AuthorDto authorDto)
         {
