@@ -83,5 +83,16 @@ namespace BookStore.Infrastructure.Services
             }
             return await GetCartItemsAsync(cartItem.UserId);
         }
+
+        public async Task<decimal> GetTotalCount(string userId)
+        {
+            var output = 0M;
+            var cartItemsList = await _repository.GetByUserIdAsync(userId);
+            foreach(var item in cartItemsList)
+            {
+                output += (item.Book.Price * item.Quantity);
+            }
+            return output;
+        }
     }
 }

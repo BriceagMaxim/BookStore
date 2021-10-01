@@ -11,5 +11,6 @@ namespace BookStore.Application.Abstraction.Services
         Task<IEnumerable<CartItem>> ChangeCartItem(int id, int quantity);
         Task<IEnumerable<CartItem>> DeleteBookFromCartById(int id);
         Task ClearBasket(string userId);
+        Task<decimal> GetTotalCount(string userId);
     }
 }
