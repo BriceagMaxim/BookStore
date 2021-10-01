@@ -10,19 +10,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BooksController : ControllerBase
+    public class BooksController : BaseAPIController
     {
+        private readonly IAuthorRepository _authorRepository;
         private readonly IMapper _mapper;
         private readonly IBookRepository _repository;
 
-        public BooksController(IBookRepository repository, IMapper mapper)
+        public BooksController(
+            IBookRepository repository, 
+            IAuthorRepository authorRepository, 
+            IMapper mapper)
         {
+            _authorRepository = authorRepository;
             _mapper = mapper;
             _repository = repository;
         }
 
+        // GET api/Books
         [HttpGet]
         public async Task<ActionResult> GetAllBooks()
         {
@@ -30,6 +34,7 @@ namespace BookStore.API.Controllers
             return Ok(books);
         }
 
+        // GET api/Books/1
         [HttpGet("{id}", Name = "BookById")]
         public async Task<ActionResult> GetBookById(int id)
         {
@@ -40,11 +45,16 @@ namespace BookStore.API.Controllers
             return Ok(book);
         }
 
+        // POST api/Books
         [HttpPost]
         public async Task<IActionResult> AddBook([FromBody] BookForCreateDto newBook)
         {
             if (!ModelState.IsValid) return BadRequest();
 
+            var author = await _authorRepository.GetAuthorByIdAsync(newBook.AuthorId);
+            if(author is null) 
+                return NotFound(new ApiResponse(404, $"Author with id: {newBook.AuthorId} is not found"));
+                
             var book = _mapper.Map<Book>(newBook);
             await _repository.CreateBook(book);
 
@@ -53,6 +63,7 @@ namespace BookStore.API.Controllers
             return CreatedAtRoute("BookById", new { Id = book.Id }, createdBook);
         }
 
+        // PUT api/Books/1
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBook(int id, [FromBody] BookForCreateDto bookDto)
         {
@@ -68,6 +79,7 @@ namespace BookStore.API.Controllers
             return NoContent();
         }
 
+        // DELETE api/Books/1
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {

@@ -24,6 +24,11 @@ namespace BookStore.API.Helpers
             //AuthorController
             CreateMap<Author, AuthorDto>();
             CreateMap<AuthorDto, Author>();
+
+            //CartController
+            CreateMap<CartItem, CartItemDto>();
+            CreateMap<CartItemDto, CartItem>();
+            CreateMap<CartItemForCreateDto, CartItem>();
         }
     }
 }

@@ -1,6 +1,8 @@
 using BookStore.API.Helpers;
 using BookStore.API.Middleware;
 using BookStore.Application.Abstraction.Repositories;
+using BookStore.Application.Abstraction.Services;
+using BookStore.Infrastructure.Services;
 using BookStore.Persistance.Data;
 using BookStore.Persistance.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +34,9 @@ namespace BookStore.API
 
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<ICartItemRepository, CartItemRepository>();
+
+            services.AddTransient<ICartService, CartService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

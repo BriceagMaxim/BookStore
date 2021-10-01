@@ -14,8 +14,8 @@ namespace BookStore.Tests
     {
         private readonly Book _book;
         private readonly Mock<IBookRepository> _repository;
+        private readonly Mock<IAuthorRepository> _authRepository;
         private readonly IMapper _mapper;
-        private readonly BooksController _controller;
 
         public BookControllerTests()
         {
@@ -45,7 +45,10 @@ namespace BookStore.Tests
         [Fact]
         public void GetBookById_ShouldReturn_Ok_WithJsonResponse()
         {
-            BooksController controller = new BooksController(_repository.Object, _mapper);
+            BooksController controller = new BooksController(
+                    _repository.Object,
+                    _authRepository.Object,
+                    _mapper);
 
             var okResult = controller.GetBookById(1);
             var responseObject = okResult.Result as OkObjectResult;
@@ -62,7 +65,10 @@ namespace BookStore.Tests
         [Fact]
         public void GetBookById_ShouldReturn_NotFound()
         {
-            BooksController controller = new BooksController(_repository.Object, _mapper);
+            BooksController controller = new BooksController(
+                _repository.Object,
+                _authRepository.Object,
+            _mapper);
 
             var notFoundResult = controller.GetBookById(2);
 

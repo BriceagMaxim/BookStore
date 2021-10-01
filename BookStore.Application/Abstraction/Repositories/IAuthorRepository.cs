@@ -9,5 +9,6 @@ namespace BookStore.Application.Abstraction.Repositories
         Task<IEnumerable<Author>> GetAuthorsAsync();
         Task<Author> GetAuthorByIdAsync(int authorId);
         Task<IEnumerable<Book>> GetAuthorBooksAsync(int authorId);
+        Task CreateAuthor(Author author);
     }
 }

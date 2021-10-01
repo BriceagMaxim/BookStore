@@ -20,7 +20,7 @@ namespace BookStore.Persistance.Repositories
 
         public async Task<Book> GetBookByIdAsync(int bookId)
         {
-            return await _context.Books.FindAsync(bookId);
+            return await _context.Books.Include(el => el.Author).FirstOrDefaultAsync(el => el.Id == bookId);
         }
 
         public async Task<IEnumerable<Book>> GetBooksAsync()

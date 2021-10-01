@@ -18,6 +18,12 @@ namespace BookStore.Persistance.Repositories
             _context = context;
         }
 
+        public async Task CreateAuthor(Author author)
+        {
+            _context.Authors.Add(author);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Book>> GetAuthorBooksAsync(int authorId)
         {
             return await _context.Books.Where(el => el.AuthorId == authorId).ToListAsync();

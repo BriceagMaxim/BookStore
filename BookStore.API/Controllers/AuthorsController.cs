@@ -4,13 +4,12 @@ using AutoMapper;
 using BookStore.API.Dtos;
 using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Repositories;
+using BookStore.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthorsController : ControllerBase
+    public class AuthorsController : BaseAPIController
     {
         private readonly IMapper _mapper;
         private readonly IAuthorRepository _repository;
@@ -21,6 +20,7 @@ namespace BookStore.API.Controllers
             _repository = repository;
         }
 
+        // GET api/Authors
         [HttpGet]
         public async Task<IActionResult> GetAuthors()
         {
@@ -28,7 +28,8 @@ namespace BookStore.API.Controllers
             return Ok(authors);
         }
 
-        [HttpGet("{id}")]
+        // GET api/Authors/1
+        [HttpGet("{id}", Name = "GetAuthorById")]
         public async Task<IActionResult> GetAuthorById(int id)
         {
             var author = _mapper.Map<AuthorDto>(await _repository.GetAuthorByIdAsync(id));
@@ -36,6 +37,7 @@ namespace BookStore.API.Controllers
             return Ok(author);
         }
 
+        // GET api/Authors/1/books
         [HttpGet("{id}/books")]
         public async Task<IActionResult> GetAuthorBooks(int id)
         {
@@ -44,6 +46,17 @@ namespace BookStore.API.Controllers
 
             var authorBooks = _mapper.Map<List<BookDto>>(await _repository.GetAuthorBooksAsync(id));
             return Ok(authorBooks);
+        }
+
+        // POST api/authors
+        [HttpPost]
+        public async Task<IActionResult> CreateAuthor(AuthorDto authorDto)
+        {
+            if(!ModelState.IsValid) return BadRequest();
+            var author = _mapper.Map<Author>(authorDto);
+            await _repository.CreateAuthor(author);
+            var createdAuthor = _repository.GetAuthorByIdAsync(author.Id);
+            return CreatedAtRoute("GetAuthorById", new {id = createdAuthor.Id}, createdAuthor);
         }
     }
 }
