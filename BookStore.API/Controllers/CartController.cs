@@ -7,16 +7,19 @@ using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Services;
 using BookStore.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookStore.API.Controllers
 {
     public class CartController : BaseAPIController
     {
+        private readonly ILogger<CartController> _logger;
         private readonly IMapper _mapper;
         private readonly ICartService _service;
 
-        public CartController(ICartService service, IMapper mapper)
+        public CartController(ICartService service, IMapper mapper , ILogger<CartController> logger)
         {
+            _logger = logger;
             _mapper = mapper;
             _service = service;
         }
@@ -40,6 +43,7 @@ namespace BookStore.API.Controllers
             if (!ModelState.IsValid) return BadRequest();
             var cartItem = _mapper.Map<CartItem>(cartItemDto);
             var updatedCart = await _service.AddBookToCartAsync(cartItem);
+            _logger.LogInformation($"Add item to cart {updatedCart.Id}");
             var updatedCartDto = _mapper.Map<CartItemDto>(updatedCart);
             return CreatedAtRoute("GetCartByUserId", new { userId = updatedCartDto.UserId }, updatedCartDto);
         }
@@ -70,7 +74,12 @@ namespace BookStore.API.Controllers
             var cartItemsList = await _service.DeleteBookFromCartById(cartItemId);
 
             if (cartItemsList is null)
+            {
+                _logger.LogInformation($"Cart is empty, cannot remove cartItems");
                 return NotFound(new ApiResponse(400, "Item not found in the cart, please check the cartItemId"));
+            }
+
+            _logger.LogInformation($"Add item to cart {cartItemsList.Count()}");
             return Ok(_mapper.Map<List<CartItemDto>>(cartItemsList));
         }
     }

@@ -8,11 +8,13 @@ using BookStore.Core.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookStore.API.Controllers
 {
     public class AuthController : BaseAPIController
     {
+        private readonly ILogger<AuthController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<User> _signInManager;
@@ -21,8 +23,10 @@ namespace BookStore.API.Controllers
         public AuthController(UserManager<User> userManager,
             SignInManager<User> signInManager,
             RoleManager<IdentityRole> roleMgr,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            ILogger<AuthController> logger)
         {
+            _logger = logger;
             _roleManager = roleMgr;
             _tokenService = tokenService;
             _signInManager = signInManager;
@@ -34,10 +38,18 @@ namespace BookStore.API.Controllers
         public async Task<IActionResult> SignIn(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user is null) return Unauthorized(new ApiResponse(401, "Bad credentials"));
+            if (user is null) 
+            {
+                _logger.LogInformation($"User with  email: {email}, doesn't exist");
+                return Unauthorized(new ApiResponse(401, "Bad credentials"));
+            }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-            if (!result.Succeeded) return Unauthorized(new ApiResponse(401, "Bad credentials"));
+            if (!result.Succeeded) 
+            {
+                _logger.LogInformation($"Wrong password for user with email: {email}");
+                return Unauthorized(new ApiResponse(401, "Bad credentials"));
+            }
 
             var userRole = await _userManager.GetRolesAsync(user);
             var response = new SignInResponseDto
@@ -47,6 +59,7 @@ namespace BookStore.API.Controllers
                 DisplayName = user.UserName,
                 Token = _tokenService.CreateToken(user, userRole.FirstOrDefault())
             };
+             _logger.LogInformation($"Succes authentication for user: {user.Email}");
             return Ok(response);
         }
 
@@ -55,12 +68,15 @@ namespace BookStore.API.Controllers
         {
             if (!_roleManager.Roles.Any())
             {
+                _logger.LogInformation($"Start seeding roles");
                 await _roleManager.CreateAsync(new IdentityRole { Name = "Customer" });
                 await _roleManager.CreateAsync(new IdentityRole { Name = "Admin" });
+                _logger.LogInformation($"Finish seeding roles");
             }
 
             if (!_userManager.Users.Any())
             {
+                _logger.LogInformation($"Start seeding users");
                 var customer = new User
                 {
                     Email = "customer@gmail.com",
@@ -91,9 +107,12 @@ namespace BookStore.API.Controllers
                 var password = "Pa$$w0rd";
                 await _userManager.CreateAsync(customer, password);
                 await _userManager.CreateAsync(admin, password);
+                _logger.LogInformation($"Finish seeding roles");
 
+                _logger.LogInformation($"Start seeding userroles");
                 await _userManager.AddToRoleAsync(customer, "Customer");
                 await _userManager.AddToRoleAsync(admin, "Admin");
+                _logger.LogInformation($"Finish seeding userroles");
             }
 
             return Ok();

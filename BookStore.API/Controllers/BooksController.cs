@@ -8,21 +8,25 @@ using BookStore.Application.Abstraction.Repositories;
 using BookStore.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookStore.API.Controllers
 {
     public class BooksController : BaseAPIController
     {
         private readonly IAuthorRepository _authorRepository;
+        private readonly ILogger<BooksController> _logger;
         private readonly IMapper _mapper;
         private readonly IBookRepository _repository;
 
         public BooksController(
             IBookRepository repository, 
             IAuthorRepository authorRepository, 
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<BooksController> logger)
         {
             _authorRepository = authorRepository;
+            _logger = logger;
             _mapper = mapper;
             _repository = repository;
         }
@@ -59,7 +63,7 @@ namespace BookStore.API.Controllers
                 
             var book = _mapper.Map<Book>(newBook);
             await _repository.CreateBook(book);
-
+            _logger.LogInformation($"Add new book {newBook.Title}");
             var createdBook = _mapper.Map<BookDto>(book);
 
             return CreatedAtRoute("BookById", new { Id = book.Id }, createdBook);
@@ -78,6 +82,7 @@ namespace BookStore.API.Controllers
 
             _mapper.Map(bookDto, book);
             await _repository.UpdateBook(book);
+            _logger.LogInformation($"Update book with Id: {book.Id}");
 
             return NoContent();
         }
@@ -92,7 +97,7 @@ namespace BookStore.API.Controllers
             if (book is null) return NotFound(new ApiResponse(404, $"Book with id: {id} is not found"));
 
             await _repository.DeleteBook(book);
-
+            _logger.LogInformation($"Delete book with Id: {book.Id}");
             return NoContent();
         }
     }

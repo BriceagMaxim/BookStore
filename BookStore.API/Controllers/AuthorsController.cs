@@ -7,16 +7,19 @@ using BookStore.Application.Abstraction.Repositories;
 using BookStore.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookStore.API.Controllers
 {
     public class AuthorsController : BaseAPIController
     {
+        private readonly ILogger<AuthorsController> _logger;
         private readonly IMapper _mapper;
         private readonly IAuthorRepository _repository;
 
-        public AuthorsController(IAuthorRepository repository, IMapper mapper)
+        public AuthorsController(IAuthorRepository repository, IMapper mapper, ILogger<AuthorsController> logger)
         {
+            _logger = logger;
             _mapper = mapper;
             _repository = repository;
         }
@@ -54,6 +57,7 @@ namespace BookStore.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAuthor(AuthorDto authorDto)
         {
+            _logger.LogInformation($"Create new author with name {authorDto.FullName}");
             if(!ModelState.IsValid) return BadRequest();
             var author = _mapper.Map<Author>(authorDto);
             await _repository.CreateAuthor(author);

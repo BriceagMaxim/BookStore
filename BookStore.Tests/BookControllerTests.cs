@@ -5,6 +5,7 @@ using BookStore.API.Helpers;
 using BookStore.Application.Abstraction.Repositories;
 using BookStore.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -16,6 +17,7 @@ namespace BookStore.Tests
         private readonly Author _author;
         private readonly Mock<IBookRepository> _repository;
         private readonly Mock<IAuthorRepository> _authRepository;
+        private readonly Mock<ILogger<BooksController>> _logger;
         private readonly IMapper _mapper;
 
         public BookControllerTests()
@@ -51,6 +53,9 @@ namespace BookStore.Tests
                 cfg.AddProfile(new MappingStoreEntities()); //your automapperprofile 
             });
             _mapper = mockMapper.CreateMapper();
+
+            _logger = new ();
+            _logger.Setup(el => el.LogInformation(""));
         }
 
         [Fact]
@@ -59,7 +64,8 @@ namespace BookStore.Tests
             BooksController controller = new BooksController(
                     _repository.Object,
                     _authRepository.Object,
-                    _mapper);
+                    _mapper,
+                    _logger.Object);
 
             var okResult = controller.GetBookById(1);
             var responseObject = okResult.Result as OkObjectResult;
@@ -79,7 +85,8 @@ namespace BookStore.Tests
             BooksController controller = new BooksController(
                 _repository.Object,
                 _authRepository.Object,
-            _mapper);
+                _mapper,
+                _logger.Object);
 
             var notFoundResult = controller.GetBookById(2);
 

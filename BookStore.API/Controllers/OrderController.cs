@@ -6,16 +6,19 @@ using BookStore.API.Dtos;
 using BookStore.API.Errors;
 using BookStore.Application.Abstraction.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BookStore.API.Controllers
 {
     public class OrderController : BaseAPIController
     {
+        private readonly ILogger<OrderController> _logger;
         private readonly IMapper _mapper;
         private readonly IOrderService _service;
 
-        public OrderController(IOrderService service, IMapper mapper)
+        public OrderController(IOrderService service, IMapper mapper, ILogger<OrderController> logger)
         {
+            _logger = logger;
             _mapper = mapper;
             _service = service;
         }
@@ -36,6 +39,7 @@ namespace BookStore.API.Controllers
         public async Task<IActionResult> CompleteOrder(string userId)
         {
             await _service.CompleteOrder(userId);
+            _logger.LogInformation($"Order completed for user with Id: {userId}");
             return Ok(new ApiResponse(200, "Order was successfully completed"));
         }
     }
