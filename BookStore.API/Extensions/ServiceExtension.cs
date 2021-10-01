@@ -9,7 +9,8 @@ namespace BookStore.API.Extensions
         public static IServiceCollection AddBusinessServices(this IServiceCollection services)
         {
             services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<ICartService, CartService>();
+            services.AddScoped<ICartService, CartService>();
+            services.AddScoped<IOrderService, OrderService>();
             return services;
         }
     }
